@@ -7,10 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
-    .setTitle('NESTJS API')
-    .setDescription('The nestjs API description')
+    .setTitle('Products API')
+    .setDescription('A API to manage products and users.')
     .setVersion('1.0')
-    .addTag('nestjs')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
