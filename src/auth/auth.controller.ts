@@ -9,7 +9,9 @@ import { AuthService } from './auth.service';
 import { SignInDto } from './dto/signIn.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -24,7 +26,9 @@ export class AuthController {
 
   @Post('register')
   async create(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.findOneByEmail(createUserDto.email);
+    const user = await this.usersService.findOneByEmailWithPassword(
+      createUserDto.email,
+    );
     if (user) {
       throw new BadRequestException('User already exists.');
     }

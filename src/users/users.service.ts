@@ -29,7 +29,7 @@ export class UsersService {
     if (updateUserDto.name) {
       user.name = updateUserDto.name;
     }
-    return await this.usersRepository.save(user);
+    return this.usersRepository.save(user);
   }
 
   async findOneById(id: string) {
@@ -38,9 +38,10 @@ export class UsersService {
     });
   }
 
-  async findOneByEmail(email: string) {
-    return await this.usersRepository.findOneBy({
-      email,
+  async findOneByEmailWithPassword(email: string) {
+    return await this.usersRepository.findOne({
+      where: { email },
+      select: ['id', 'email', 'password'],
     });
   }
 }

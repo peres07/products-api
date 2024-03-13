@@ -6,10 +6,11 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
+import { Product } from './products/entities/product.entity';
 
 @Module({
   imports: [
-    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -20,10 +21,12 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_DB,
-      entities: [User],
+      entities: [User, Product],
       synchronize: true,
     }),
     AuthModule,
+    UsersModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
