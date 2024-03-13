@@ -48,7 +48,7 @@ export class ProductsController {
   async findOne(@Param('id') id: string) {
     const product = await this.productsService.findOne(id);
     if (!product) throw new NotFoundException('Cannot find this product.');
-    return this.productsService.findOne(id);
+    return product;
   }
 
   @ApiBearerAuth()
