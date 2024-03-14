@@ -12,11 +12,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductDto } from './dto/createProduct.dto';
+import { UpdateProductDto } from './dto/updateProduct.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UsersService } from 'src/users/users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ReturnProductDTO } from './dto/returnProduct.dto';
+import { ReturnAllProductsDTO } from './dto/returnAllProducts.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -40,15 +42,16 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  async findAll() {
+    const products = await this.productsService.findAll();
+    return products.map((product) => new ReturnAllProductsDTO(product));
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const product = await this.productsService.findOne(id);
     if (!product) throw new NotFoundException('Cannot find this product.');
-    return product;
+    return new ReturnProductDTO(product);
   }
 
   @ApiBearerAuth()
