@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/createUser.dto';
-import { UpdateUserDto } from './dto/updateUser.dto';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateUserDto } from './dto/createUser.dto';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -19,28 +18,28 @@ export class UsersService {
     return result.identifiers[0].id;
   }
 
-  async update(updateUserDto: UpdateUserDto, user: User) {
-    if (updateUserDto.password) {
-      user.password = updateUserDto.password;
-    }
-    if (updateUserDto.email) {
-      user.email = updateUserDto.email;
-    }
-    if (updateUserDto.name) {
-      user.name = updateUserDto.name;
-    }
+  async update(user: User) {
     return this.usersRepository.save(user);
   }
 
-  async findOneById(id: string) {
-    return await this.usersRepository.findOneBy({
-      id,
+  async findOneById(id: string, selectPassword: boolean = false) {
+    return await this.usersRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        password: selectPassword,
+      },
     });
   }
 
   async findOneByEmailWithPassword(email: string) {
     return await this.usersRepository.findOne({
       where: { email },
+      select: ['id', 'email', 'password'],
     });
   }
 }

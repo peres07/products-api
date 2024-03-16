@@ -1,35 +1,49 @@
 import {
+  Body,
   Controller,
-  // Body,
-  // Patch,
-  // Param,
-  // NotFoundException,
-  // BadRequestException,
-  // UseGuards,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Req,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { UpdatePasswordDTO } from './dto/updatePassword.dto';
 import { UsersService } from './users.service';
-// import { UpdateUserDto } from './dto/update-user.dto';
-// import { AuthGuard } from 'src/auth/auth.guard';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @UseGuards(AuthGuard)
-  // @Patch('/update/:id')
-  // async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   const user = await this.usersService.findOneById(id);
-  //   if (!user) {
-  //     throw new NotFoundException('User not found.');
-  //   }
-  //   try {
-  //     await this.usersService.update(updateUserDto, user);
-  //     return {
-  //       message: 'User updated successfully.',
-  //       data: updateUserDto,
-  //     };
-  //   } catch (err) {
-  //     throw new BadRequestException('Cannot update the especify user.');
-  //   }
-  // }
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Patch('/changePassword')
+  async update(
+    @Req() request: Request,
+    @Body() updatePasswordDTO: UpdatePasswordDTO,
+  ) {
+    const user = await this.usersService.findOneById(request['user'].sub, true);
+
+    if (!(await user.comparePassword(updatePasswordDTO.password)))
+      throw new UnauthorizedException('Wrong password.');
+
+    user.password = updatePasswordDTO.newPassword;
+    user.hashPassword();
+
+    await this.usersService.update(user);
+    return {
+      message: 'Password updated successfully.',
+    };
+  }
+
+  @Get('/:id')
+  async findOne(@Param('id') id: string) {
+    const user = await this.usersService.findOneById(id);
+    if (!user) throw new NotFoundException('User not found.');
+    return user;
+  }
 }
